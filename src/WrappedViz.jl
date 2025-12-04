@@ -13,6 +13,8 @@ $(isnothing(get(ENV, "CI", nothing)) ? ("\n" * "Package local path: " * pathof(W
 
 module WrappedViz
 
-# Write your package code here.
+function hello()
+    println("Hello from WrappedViz!")
+end
 
 end
