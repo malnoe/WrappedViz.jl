@@ -1,0 +1,7 @@
+name = "WrappedViz"
+uuid = "51f01b71-94a9-4fc1-b1a6-58ee26ee16e2"
+authors = ["Garance Malnoë <106530489+malnoe@users.noreply.github.com>"]
+version = "0.0.1"
+
+[compat]
+julia = "1.10"
