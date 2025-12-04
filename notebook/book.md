@@ -1,0 +1,19 @@
+# Accueil
+
+# Temps d'écoute
+
+0. Statistiques globales (minutes, heures, jours) (KPI)
+1. Réparatition sur les mois (bar chart)
+2. Réparation sur les jours de la semaine (bar chart)
+3. Réparttion sur les heures de la journée (rose des vents)
+
+# Statistiques sur les titres
+
+1. Nombre de titres écoutés
+2. Top écoute (annuel et mensuel avec bubble chart)
+
+# Statistiques sur les artistes
+
+1. Nombre d'artistes écoutés
+2. Top artistes (annuel et mensuel avec bubble chart)
+
