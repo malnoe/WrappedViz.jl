@@ -3,18 +3,16 @@
 # but it will interpolate to an empty string on CI server, 
 # preventing appearing the server local path in the documentation built there.
 
-"""
-    Package WrappedViz v$(pkgversion(WrappedViz))
-
-What did you listen to ?
-
-$(isnothing(get(ENV, "CI", nothing)) ? ("\n" * "Package local path: " * pathof(WrappedViz)) : "") 
-"""
-
 module WrappedViz
 
 function hello()
     println("Hello from WrappedViz!")
 end
+
+function init_book()
+    println("Initializing WrappedViz book...")
+    BonitoBook.book("../src/book.md")
+end
+
 
 end

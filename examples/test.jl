@@ -1,3 +1,5 @@
 using WrappedViz
+using Bonito
 
-hello()
+WrappedViz.hello()
+WrappedViz.init_book()
