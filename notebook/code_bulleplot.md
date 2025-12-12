@@ -2,6 +2,7 @@
 
 Ceci est du markdown.
 
+
 ```julia (editor=true, logging=false, output=true)
 using WGLMakie
 
@@ -24,6 +25,9 @@ scatter!(ax, x, y;
 
 fig
 # Ajouter les textes aux positions (x, y) pour les centrés dans les bulles.
+```
+```julia (editor=true, logging=false, output=true)
+
 ```
 ```julia (editor=true, logging=false, output=true)
 using Pkg
