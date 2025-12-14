@@ -36,24 +36,9 @@ function _copytree_rewrite(src::AbstractString, dst::AbstractString)
     end
 end
 
-# test d'écriture "réel"
 function _assert_can_write(p::AbstractString)
-    try
-        open(p, "a") do io
-            write(io, "\n")  # append
-        end
-    catch err
-        error("Cannot write to $p\nUnderlying error: $(err)")
-    end
-end
-
-# optionnel: enlever read-only via attrib (Windows)
-function _windows_clear_readonly(dir::AbstractString)
-    Sys.iswindows() || return
-    try
-        run(`cmd /c attrib -R "${dir}\*" /S /D`)
-    catch
-        # si attrib échoue, on continue quand même
+    open(p, "a") do io
+        write(io, "\n")  # append pour tester l'écriture
     end
 end
 
@@ -62,15 +47,12 @@ function book()
     src_file = joinpath(src_dir, "book.md")
     @assert isfile(src_file) "book.md introuvable: $src_file"
 
-    # ✅ Dossier de travail stable et writable
     workroot = joinpath(homedir(), ".wrappedviz", "runs")
     mkpath(workroot)
 
-    run_dir = mktempdir(workroot)  # crée un sous-dossier unique dans workroot
+    run_dir = mktempdir(workroot)
     dst_dir = joinpath(run_dir, "notebook")
     _copytree_rewrite(src_dir, dst_dir)
-
-    _windows_clear_readonly(dst_dir)
 
     dst_file = joinpath(dst_dir, "book.md")
     _assert_can_write(dst_file)
