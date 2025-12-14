@@ -19,7 +19,7 @@ function book()
 end
 
 function book_example()
-    path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "example_book.md") |> normpath
+    path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "exemple_book.md") |> normpath
     println("Wrapped Viz loading", path)
     return BonitoBook.book(path)
 end
