@@ -12,14 +12,12 @@ include("vizus.jl")
 
 using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito, Pkg
 
-# Fonction pour faire une copie récursive d'un dossier
 function _copytree(src::AbstractString, dst::AbstractString)
     mkpath(dst)
     for (root, dirs, files) in walkdir(src)
         rel = relpath(root, src)
         out_root = rel == "." ? dst : joinpath(dst, rel)
         mkpath(out_root)
-
         for d in dirs
             mkpath(joinpath(out_root, d))
         end
@@ -32,7 +30,19 @@ function _copytree(src::AbstractString, dst::AbstractString)
     return dst
 end
 
-# Fonction pour lancer le notebook principal
+function _make_writable(dir::AbstractString)
+    for (root, _, files) in walkdir(dir)
+        for f in files
+            p = joinpath(root, f)
+            try
+                chmod(p, 0o666)  # enlève read-only sur Windows
+            catch err
+                @warn "Could not chmod $p" err
+            end
+        end
+    end
+end
+
 function book()
     src_dir  = joinpath(pkgdir(@__MODULE__), "src", "notebook")
     src_file = joinpath(src_dir, "book.md")
@@ -41,10 +51,12 @@ function book()
     run_dir = mktempdir()
     dst_dir = joinpath(run_dir, "WrappedViz_notebook")
     _copytree(src_dir, dst_dir)
+    _make_writable(dst_dir)
 
     dst_file = joinpath(dst_dir, "book.md")
-    println("Launching BonitoBook from: ", dst_file)
+    @assert iswritable(dst_file) "book.md non-writable après copie: $dst_file"
 
+    println("Launching BonitoBook from: ", dst_file)
     return BonitoBook.book(dst_file)
 end
 
