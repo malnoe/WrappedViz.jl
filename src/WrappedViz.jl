@@ -1,12 +1,11 @@
 module WrappedViz
 
-export book_final, book_example, txt_temps_ecoute,bp_monthly_tracks, bp_daily_tracks, windrose_hourly_tracks, bbplot_artists, bbplot_tracks, data_cleaning
+export book, book_example, bp_monthly_tracks, bp_daily_tracks, windrose_hourly_tracks, bbplot_artists, bbplot_tracks,txt_temps_ecoute, bonito_text, data_cleaning
 
 include("data_cleaning.jl")
 include("vizus.jl")
 
 using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito, Pkg
-
 
 function _copytree_rewrite(src::AbstractString, dst::AbstractString)
     mkpath(dst)
@@ -53,6 +52,8 @@ function book()
     _assert_can_write(dst_file)
 
     println("Launching BonitoBook from: ", dst_file)
+    Bonito.use_compression!(false)
+    Bonito.force_connection!(Bonito.DualWebsocket)
     return BonitoBook.book(dst_file)
 end
 
