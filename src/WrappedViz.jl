@@ -10,6 +10,8 @@ export init_book
 include("data_cleaning.jl")
 include("vizus.jl")
 
+using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie
+
 function init_book()
     println("Initializing WrappedViz book...")
     BonitoBook.book("notebook/book.md")
