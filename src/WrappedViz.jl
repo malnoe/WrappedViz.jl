@@ -59,9 +59,24 @@ end
 
 # Fonction pour lancer un exemple de notebook
 function book_example()
-    path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "exemple_book.md") |> normpath
-    println("Wrapped Viz loading", path)
-    return BonitoBook.book(path)
+    src_dir  = joinpath(pkgdir(@__MODULE__), "src", "notebook")
+    src_file = joinpath(src_dir, "exemple_book.md")
+    @assert isfile(src_file) "exemple_book.md introuvable: $src_file"
+
+    workroot = joinpath(homedir(), ".wrappedviz", "runs")
+    mkpath(workroot)
+
+    run_dir = mktempdir(workroot)
+    dst_dir = joinpath(run_dir, "notebook")
+    _copytree_rewrite(src_dir, dst_dir)
+
+    dst_file = joinpath(dst_dir, "exemple_book.md")
+    _assert_can_write(dst_file)
+
+    println("Launching BonitoBook from: ", dst_file)
+    Bonito.use_compression!(false)
+    Bonito.force_connection!(Bonito.DualWebsocket)
+    return BonitoBook.book(dst_file)
 end
 
 end # module
