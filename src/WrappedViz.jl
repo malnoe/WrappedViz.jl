@@ -14,13 +14,13 @@ using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonit
 
 function book()
     println("Finalizing WrappedViz book...")
-    BonitoBook.book("notebook/book.md")
+    BonitoBook.book("../notebook/book.md")
 end
 
 function book_example()
     println("Exemple de WrappedViz book avec fichier de donnnées exemple...")
-    BonitoBook.book("notebook/exemple_book.md")
-end 
+    BonitoBook.book("../notebook/exemple_book.md")
+end
 
 end # module
 
