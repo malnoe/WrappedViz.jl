@@ -1,4 +1,4 @@
 using WrappedViz
 
-WrappedViz.hello()
-WrappedViz.init_book()
+WrappedViz.book()
+WrappedViz.book_example()

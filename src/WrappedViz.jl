@@ -5,18 +5,22 @@
 
 module WrappedViz
 
-export init_book
+export book_final, book_example, txt_temps_ecoute,bp_monthly_tracks, bp_daily_tracks, windrose_hourly_tracks, bbplot_artists, bbplot_tracks, data_cleaning
 
 include("data_cleaning.jl")
 include("vizus.jl")
 
-using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie
+using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito
 
-function init_book()
-    println("Initializing WrappedViz book...")
+function book()
+    println("Finalizing WrappedViz book...")
     BonitoBook.book("notebook/book.md")
 end
 
+function book_example()
+    println("Exemple de WrappedViz book avec fichier de donnnées exemple...")
+    BonitoBook.book("notebook/exemple_book.md")
+end 
 
 end # module
 

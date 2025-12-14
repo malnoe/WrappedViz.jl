@@ -1,13 +1,19 @@
 import Gtk, JSON3, DataFrames, Dates
 using Gtk, JSON3, DataFrames, Dates
 
-function data_cleaning()
-    # Dialogue sélection du fichier    
-    printstyled("Hey 👋 Quelle données Spotify veux-tu regarder aujourd'hui ?", bold=true, color=:magenta)
-    file_path = open_dialog("Sélectionnez un fichier Spotify (JSON)")
-    file_path === nothing && error("Aucun fichier sélectionné.")
-    printstyled("Fichier sélectionné : $file_path", color=:blue)
+export data_cleaning
 
+function data_cleaning(;file_path::String="")
+    if(file_path === nothing || file_path == "")
+        # Dialogue sélection du fichier    
+        printstyled("Hey 👋 Quelle données Spotify veux-tu regarder aujourd'hui ?", bold=true, color=:magenta)
+        file_path = open_dialog("Sélectionnez un fichier Spotify (JSON)")
+        file_path === nothing && error("Aucun fichier sélectionné.")
+        printstyled("Fichier sélectionné : $file_path", color=:blue)
+    else
+        printstyled("Fichier fourni : $file_path", color=:blue)
+    end
+    
     # Lecture fichier
     txt = read(file_path, String)
     txt = strip(txt)

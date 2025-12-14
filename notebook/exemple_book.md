@@ -1,8 +1,8 @@
 # WrappedViz : Analyse de vos données Spotify
 
 ```julia (editor=true, logging=false, output=false)
-using WrappedViz,Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, VegaLite, GLMakie, Bonito
-df = data_cleaning()
+using WrappedViz
+df = data_cleaning(file_path="examples/data/History_files/Streaming_History_Audio_2024-2025_2.json")
 ```
 # Temps d'écoute
 

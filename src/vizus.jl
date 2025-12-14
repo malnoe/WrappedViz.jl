@@ -1,37 +1,72 @@
-import DataFrames, Dates, Makie, WGLMakie, GLMakie
-using DataFrames, Dates, Makie, WGLMakie, GLMakie
+import DataFrames, Dates, Makie, WGLMakie, GLMakie, Bonito
+using DataFrames, Dates, Makie, WGLMakie, GLMakie, Bonito
 
+export bp_monthly_tracks, bp_daily_tracks, windrose_hourly_tracks, bbplot_artists, bbplot_tracks,txt_temps_ecoute, bonito_text
+
+# Fonction pour afficher un texte stylisé avec Bonito
+function bonito_text(msg)
+    DOM.div(
+        HTML(msg),
+        style = Dict(
+            "font-size" => "40px",
+            "font-weight" => "500",
+            "line-height" => "1.3",
+            "color" => "#ff4fd8",
+            "text-align" => "center",
+            "margin" => "20vh auto 0 auto",
+            "max-width" => "900px"
+        )
+    )
+end
+
+
+# Texte temps d'écoute
+function txt_temps_ecoute(df::DataFrame)
+    tps_min = sum(df.duration_ms) / 60000
+    tps_h   = tps_min / 60
+    tps_j   = tps_h / 24
+
+    msg = """Vous avez <b>$(trunc(Int, tps_min)) minutes</b> d'écoute, soit <b>$(trunc(Int, tps_h)) heures</b>, ou <b>$(trunc(Int, tps_j)) jours</b>. Waouh ! 🤯"""
+
+    return bonito_text(msg)
+end
 
 # Barplot des temps d'écoute mensuelles
 function bp_monthly_tracks(df::DataFrame)
     # Récupération du mois correspondant
     df.month = month.(df.date)
+
     # Fréquence d'écoute par mois
     df_freq = combine(
         groupby(df, :month),
-        nrow => :nb_titles,  # Nombre de titres écoutés
-        :ms_played => (x -> sum(x) ./ 60000) => :freq  # Durée totale en minutes
+        nrow => :nb_titles,
+        :duration_ms => (x -> sum(x) ./ 60000) => :freq
     )
+
     # Ajoute des mois vides
     months = DataFrame(month = 1:12)
     df_freq = leftjoin(months, df_freq, on = :month)
     df_freq.freq .= coalesce.(df_freq.freq, 0)
     df_freq.nb_titles .= coalesce.(df_freq.nb_titles, 0)
+
     # Correspondance mois
     month_labels = [
-        "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
+        "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
         "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
     ]
-    # Tri des donées
+
+    # Tri des données
     df_data = sort(df_freq, :month)
     months_str = month_labels[df_data.month]
     freq = df_data.freq
+
     # Meilleur mois
     best_month_idx = findmax(freq)[2]
-    printstyled(
-        "Tu as fait fort en $(months_str[best_month_idx]) avec $(round(freq[best_month_idx], digits=2)) minutes d'écoute ! 🤯",
-        bold = true, color = :magenta
-    )
+
+    # Texte
+    msg = """Tu as fait fort en $(months_str[best_month_idx]) avec <b>$(round(freq[best_month_idx], digits=2))</b> minutes d'écoute ! 🤯"""
+    txt = bonito_text(msg)
+
     # Figure
     fig = Figure(size=(1000, 450))
     ax = Axis(
@@ -41,8 +76,18 @@ function bp_monthly_tracks(df::DataFrame)
         ylabel = "Durée d'écoute (minutes)"
     )
     barplot!(ax, 1:12, freq, color = "#2a2781")
-    fig
+
+    # Texte + figure visibles ensemble
+    return DOM.div(
+        txt,
+        fig,
+        style = Dict(
+            "display" => "grid",
+            "gap" => "24px"
+        )
+    )
 end
+
 
 
 # Barplot des temps d'écoute journaliers (jours de la semaine)
@@ -53,7 +98,7 @@ function bp_daily_tracks(df::DataFrame)
     df_freq = combine(
         groupby(df, :dayofweek),
         nrow => :nb_titles,  # Nombre de titres écoutés
-        :ms_played => (x -> sum(x) ./ (60000 .* 52)) => :freq  # Durée totale moyenne en minutes
+        :duration_ms => (x -> sum(x) ./ (60000 .* 52)) => :freq  # Durée totale moyenne en minutes
     )
     # Conversion en nombre de titre moyens
     df_freq.nb_titles = round.(df_freq.nb_titles ./ 52)
@@ -70,10 +115,10 @@ function bp_daily_tracks(df::DataFrame)
     freq = df_data.freq
     # Meilleur jour
     best_day_idx = findmax(freq)[2]
-    printstyled(
-        "$(days_str[best_day_idx]) est ton jour musical de la semaine : tu écoutes en moyenne $(round(freq[best_day_idx], digits=2)) \nminutes de musique ! 🤯",
-        bold = true, color = :magenta
-    )
+    # Texte
+    msg = """$(days_str[best_day_idx]) est ton jour musical de la semaine : tu écoutes en moyenne $(round(freq[best_day_idx], digits=2)) \nminutes de musique ! 🤯"""
+    txt = bonito_text(msg)
+
     # Figure
     fig = Figure(size=(800, 450))
     ax = Axis(
@@ -83,7 +128,16 @@ function bp_daily_tracks(df::DataFrame)
         ylabel = "Durée d'écoute moyenne (minutes)"
     )
     barplot!(ax, 1:7, freq, color = "#2a2781")
-    fig
+
+    # Texte + figure visibles ensemble
+    return DOM.div(
+        txt,
+        fig,
+        style = Dict(
+            "display" => "grid",
+            "gap" => "24px"
+        )
+    )
 end
 
 
@@ -95,7 +149,7 @@ function windrose_hourly_tracks(df::DataFrame; close_polygon::Bool=true, rmax=no
     df_freq = combine(
         groupby(df, :hour),
         nrow => :nb_titles,  # Nombre de titres écoutés
-        :ms_played => (x -> round.(sum(x) ./ (60000 .* 52), digits = 2)) => :freq  # Durée totale moyenne en minutes
+        :duration_ms => (x -> round.(sum(x) ./ (60000 .* 52), digits = 2)) => :freq  # Durée totale moyenne en minutes
     )
     # Conversion en nombre de titre moyens par heures
     df_freq.nb_titles = round.(df_freq.nb_titles ./ 52)
@@ -109,10 +163,10 @@ function windrose_hourly_tracks(df::DataFrame; close_polygon::Bool=true, rmax=no
     labels = string.(df_data[!, :hour])
     # Meilleur heure
     best_hour_idx = findmax(df_data.freq)[2]
-    printstyled(
-        "Waouh ! $(df_data[best_hour_idx, :hour])h est vraiment ton heure d'écoute ! 🔥",
-        bold = true, color = :magenta
-    )
+    # Texte
+    msg = """Waouh ! $(df_data[best_hour_idx, :hour])h est vraiment ton heure d'écoute ! 🔥"""
+    txt = bonito_text(msg)
+
     # Réglages de la figure
     r = Float64.(df_data[!, :freq])
     n = length(r)
@@ -157,17 +211,19 @@ function windrose_hourly_tracks(df::DataFrame; close_polygon::Bool=true, rmax=no
         ty = 1.08 * rmax_val * sin(t)
         text!(ax, labels[i], position=Point2f(tx, ty), align=(:center, :center))
     end
-    fig
-end
 
+    return DOM.div(
+                txt,
+                fig,
+                style = Dict("display" => "grid", "gap" => "24px")
+            )
+end
 
 # Bubbleplot top 10 artistes
 function bbplot_artists(df::DataFrame)
-    # Phrases d'intro
-    printstyled(
-        "Tu as écouté $(length(df.artist)) artistes, dont $(length(unique(df.artist))) différents. Impréssionnant ! \nMais certains t'ont marqué plus que d'autres, regarde 👇", 
-        bold=true, color=:magenta
-    )
+    # Texte
+    msg = """Tu as écouté $(length(unique(df.artist))) différents. Impréssionnant ! \nMais certains t'ont marqué.e plus que d'autres, regarde 👇"""
+    txt = bonito_text(msg)
     # Nombre d'écoutes par artistes
     df_counts = combine(groupby(df, :artist), nrow => :listening_counts)
     # Trier par ordre décroissant
@@ -205,17 +261,21 @@ function bbplot_artists(df::DataFrame)
         font = "bold", fontsize = 12, color = :black,
         align = (:center, :center)
     )
-    fig
+    
+    # Texte + figure visibles ensemble
+    return DOM.div(
+                txt,
+                fig,
+                style = Dict("display" => "grid", "gap" => "24px")
+            )
 end
 
 
 # Bubbleplot top 10 musiques
 function bbplot_tracks(df::DataFrame)
     # Phrases d'intro
-    printstyled(
-        "Tu as écouté $(length(df.track_name)) titres, dont $(length(unique(df.track_name))) différents. Impréssionnant ! \nMais certains t'ont marqué plus que d'autres, regarde 👇", 
-        bold=true, color=:magenta
-    )
+    msg = """Tu as écouté $(length(df.track_name)) titres, dont $(length(unique(df.track_name))) différents. Impréssionnant ! \nMais certains t'ont marqué plus que d'autres, regarde 👇"""
+    txt = bonito_text(msg)
     # Nombre d'écoutes par titres
     df_counts = combine(groupby(df, :track_name), nrow => :listening_counts)
     # Trier par ordre décroissant
@@ -253,5 +313,9 @@ function bbplot_tracks(df::DataFrame)
         font = "bold", fontsize = 12, color = :black,
         align = (:center, :center)
     )
-    fig
+    return DOM.div(
+                txt,
+                fig,
+                style = Dict("display" => "grid", "gap" => "24px")
+            )
 end
