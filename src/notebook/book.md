@@ -1,4 +1,7 @@
 # WrappedViz : Analyse de vos données Spotify
+```julia (editor=true, logging=false, output=false)
+print("Hello World from WrappedViz!")
+```
 
 ```julia (editor=true, logging=false, output=false)
 using WrappedViz,Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, VegaLite, GLMakie, Bonito
