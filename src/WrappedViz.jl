@@ -5,23 +5,16 @@
 
 module WrappedViz
 
-export hello, init_book
+export init_book
 
+include("data_cleaning.jl")
 using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames
-
-function hello()
-    println("Hello from WrappedViz!")
-end
 
 function init_book()
     println("Initializing WrappedViz book...")
     BonitoBook.book("notebook/book.md")
 end
 
-function book_bulleplot()
-    println("Book with bulle plot example")
-    BonitoBook.book("notebook/code_bulleplot.md")
-end
 
 end # module
 
