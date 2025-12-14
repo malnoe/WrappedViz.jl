@@ -10,16 +10,18 @@ export book_final, book_example, txt_temps_ecoute,bp_monthly_tracks, bp_daily_tr
 include("data_cleaning.jl")
 include("vizus.jl")
 
-using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito
+using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito, Pkg
 
 function book()
-    println("Finalizing WrappedViz book...")
-    BonitoBook.book("/notebook/book.md")
+    path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "book.md") |> normpath
+    println("Wrapped Viz loading", path)
+    return BonitoBook.book(path)
 end
 
 function book_example()
-    println("Exemple de WrappedViz book avec fichier de donnnées exemple...")
-    BonitoBook.book("/notebook/exemple_book.md")
+    path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "example_book.md") |> normpath
+    println("Wrapped Viz loading", path)
+    return BonitoBook.book(path)
 end
 
 end # module
