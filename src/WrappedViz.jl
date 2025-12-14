@@ -12,17 +12,35 @@ include("vizus.jl")
 
 using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito, Pkg
 
+# Fonction pour faire une copie récursive d'un dossier
+function _copytree(src::AbstractString, dst::AbstractString)
+    mkpath(dst)
+    for (root, dirs, files) in walkdir(src)
+        rel = relpath(root, src)
+        out_root = rel == "." ? dst : joinpath(dst, rel)
+        mkpath(out_root)
+
+        for d in dirs
+            mkpath(joinpath(out_root, d))
+        end
+        for f in files
+            srcf = joinpath(root, f)
+            dstf = joinpath(out_root, f)
+            Base.Filesystem.cp(srcf, dstf; force=true)
+        end
+    end
+    return dst
+end
+
+# Fonction pour lancer le notebook principal
 function book()
-    # Notebook "source" dans le package
     src_dir  = joinpath(pkgdir(@__MODULE__), "src", "notebook")
     src_file = joinpath(src_dir, "book.md")
-
     @assert isfile(src_file) "book.md introuvable: $src_file"
 
-    # Dossier writable (temp) pour exécuter BonitoBook
     run_dir = mktempdir()
     dst_dir = joinpath(run_dir, "WrappedViz_notebook")
-    cp(src_dir, dst_dir; recursive=true, force=true)
+    _copytree(src_dir, dst_dir)
 
     dst_file = joinpath(dst_dir, "book.md")
     println("Launching BonitoBook from: ", dst_file)
@@ -30,6 +48,7 @@ function book()
     return BonitoBook.book(dst_file)
 end
 
+# Fonction pour lancer un exemple de notebook
 function book_example()
     path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "exemple_book.md") |> normpath
     println("Wrapped Viz loading", path)
