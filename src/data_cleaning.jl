@@ -1,5 +1,4 @@
 import Gtk, JSON3, DataFrames, Dates
-
 using Gtk, JSON3, DataFrames, Dates
 
 function data_cleaning()

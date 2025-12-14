@@ -8,7 +8,7 @@ module WrappedViz
 export init_book
 
 include("data_cleaning.jl")
-using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames
+include("vizus.jl")
 
 function init_book()
     println("Initializing WrappedViz book...")
