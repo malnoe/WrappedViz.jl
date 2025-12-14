@@ -12,32 +12,26 @@ include("vizus.jl")
 
 using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito, Pkg
 
-function _copytree(src::AbstractString, dst::AbstractString)
+function _copytree_rewrite(src::AbstractString, dst::AbstractString)
     mkpath(dst)
     for (root, dirs, files) in walkdir(src)
         rel = relpath(root, src)
         out_root = rel == "." ? dst : joinpath(dst, rel)
         mkpath(out_root)
+
         for d in dirs
             mkpath(joinpath(out_root, d))
         end
+
         for f in files
             srcf = joinpath(root, f)
             dstf = joinpath(out_root, f)
-            Base.Filesystem.cp(srcf, dstf; force=true)
-        end
-    end
-    return dst
-end
 
-function _make_writable(dir::AbstractString)
-    for (root, _, files) in walkdir(dir)
-        for f in files
-            p = joinpath(root, f)
-            try
-                chmod(p, 0o666)  # enlève read-only sur Windows
-            catch err
-                @warn "Could not chmod $p" err
+            # 🔑 recréation du fichier (pas cp)
+            open(srcf, "r") do io_in
+                open(dstf, "w") do io_out
+                    write(io_out, read(io_in))
+                end
             end
         end
     end
@@ -50,11 +44,10 @@ function book()
 
     run_dir = mktempdir()
     dst_dir = joinpath(run_dir, "WrappedViz_notebook")
-    _copytree(src_dir, dst_dir)
-    _make_writable(dst_dir)
+    _copytree_rewrite(src_dir, dst_dir)
 
     dst_file = joinpath(dst_dir, "book.md")
-    @assert iswritable(dst_file) "book.md non-writable après copie: $dst_file"
+    @assert iswritable(dst_file) "book.md toujours non-writable: $dst_file"
 
     println("Launching BonitoBook from: ", dst_file)
     return BonitoBook.book(dst_file)
