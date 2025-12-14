@@ -1,6 +1,10 @@
 # WrappedViz : Analyse de vos données Spotify
 
 ```julia (editor=true, logging=false, output=false)
+print("Hello World from WrappedViz!")
+```
+
+```julia (editor=true, logging=false, output=false)
 using WrappedViz
 df = data_cleaning(file_path="examples/data/History_files/Streaming_History_Audio_2024-2025_2.json")
 ```
