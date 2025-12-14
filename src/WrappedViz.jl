@@ -1,6 +1,6 @@
 module WrappedViz
 
-export book, book_example, bp_monthly_tracks, bp_daily_tracks, windrose_hourly_tracks, bbplot_artists, bbplot_tracks,txt_temps_ecoute, bonito_text, data_cleaning
+export book, book_example, book_example2, bp_monthly_tracks, bp_daily_tracks, windrose_hourly_tracks, bbplot_artists, bbplot_tracks,txt_temps_ecoute, bonito_text, data_cleaning
 
 include("data_cleaning.jl")
 include("vizus.jl")
@@ -77,6 +77,12 @@ function book_example()
     Bonito.use_compression!(false)
     Bonito.force_connection!(Bonito.DualWebsocket)
     return BonitoBook.book(dst_file)
+end
+
+function book_example2()
+    path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "exemple_book.md") |> normpath
+    println("Wrapped Viz loading", path)
+    return BonitoBook.book(path)
 end
 
 end # module
