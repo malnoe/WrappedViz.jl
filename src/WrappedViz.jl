@@ -13,9 +13,21 @@ include("vizus.jl")
 using BonitoBook, Makie, WGLMakie, Gtk, JSON3, DataFrames, Dates, GLMakie, Bonito, Pkg
 
 function book()
-    path = joinpath(pkgdir(@__MODULE__), "src", "notebook", "book.md") |> normpath
-    println("Wrapped Viz loading", path)
-    return BonitoBook.book(path)
+    # Notebook "source" dans le package
+    src_dir  = joinpath(pkgdir(@__MODULE__), "src", "notebook")
+    src_file = joinpath(src_dir, "book.md")
+
+    @assert isfile(src_file) "book.md introuvable: $src_file"
+
+    # Dossier writable (temp) pour exécuter BonitoBook
+    run_dir = mktempdir()
+    dst_dir = joinpath(run_dir, "WrappedViz_notebook")
+    cp(src_dir, dst_dir; recursive=true, force=true)
+
+    dst_file = joinpath(dst_dir, "book.md")
+    println("Launching BonitoBook from: ", dst_file)
+
+    return BonitoBook.book(dst_file)
 end
 
 function book_example()
@@ -25,4 +37,3 @@ function book_example()
 end
 
 end # module
-
